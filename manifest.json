@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "QuizTab",
+  "description": "Utilizes the Quizlet API to help you study every time a new tab opens!",
+  "version": "1.0",
+  "chrome_url_overrides": {
+		"newtab": "index.html"
+	},
+
+  "permissions": [
+    "identity",
+    "storage",
+    "https://www.quizlet.com/*"
+  ]
+}
