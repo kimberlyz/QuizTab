@@ -11,6 +11,7 @@
   "permissions": [
     "identity",
     "storage",
-    "https://www.quizlet.com/*"
+    "https://www.quizlet.com/*",
+    "https://api.quizlet.com/*"
   ]
 }
