@@ -1,7 +1,25 @@
 $(document).ready(function() {
+
+  load_background();
   $("a").click(function() {
     authorize();
   });
+
+  function load_background() {
+    // create a new Image object
+    var img_tag = new Image();
+
+    // when preload is complete, apply the image to the div
+    var img = "/assets/img/login-background-large-inter.png";
+    img_tag.onload = function() {
+      $(".background").css("background-image", "url(" + img + ")");
+      $(".background").addClass("fade-in-anim");
+    }
+    // setting 'src' actually starts the preload
+    img_tag.src = img;
+  }
+
+
 
   function authorize() {
     var csrf_token = "pineapple"; // TODO: Change later to cryptographically secure token

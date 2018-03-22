@@ -19,8 +19,5 @@
     "assets/css/style.css",
     "assets/fonts/Raleway-Bold.ttf",
     "assets/fonts/Raleway-Regular.ttf"
-  ],
-  "css": [
-    "assets/css/style.css"
   ]
 }

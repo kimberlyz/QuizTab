@@ -1,29 +1,28 @@
 /**
- * CH01 - Fonts
- * CH02 - Background Settings
- * CH03 - Typing Text
- * CH04 - Title and Login
+ * CH01 - Background Settings
+ * CH02 - Title and Login
+ * CH03 - Fade Animation
 **/
 
-/* CH01 - Fonts
+/* CH01 - Background Settings
 ===============================================================================
 */
-@font-face {
- font-family: 'RalewayBold';
+
+@import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
+
+/* @font-face {
+ font-family: 'Raleway';
  font-style: bold;
  font-weight: 700;
- src: url('chrome-extension://__MSG_@@extension_id__/assets/fonts/Raleway-Bold.ttf');
-}
+ src: url('chrome-extension://__ijmpnlakppmpnkhcpdobhbjgnehdlegh__/assets/fonts/Raleway-Bold.ttf');
+} */
 
-/* CH02 - Background Settings
-===============================================================================
-*/
 html {
   margin: 0;
   width: 100%;
   height: 100%;
   text-align: center;
-  font-family: 'RalewayBold';
+  font-family: 'Raleway';
 }
 
 body {
@@ -32,46 +31,13 @@ body {
 }
 
 .background {
-    background-image: url("../img/login-background.jpeg");
     height: 100%;
-
-    /* Center and scale the image nicely */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
 }
 
-/* CH03 - Typing Text
-===============================================================================
-*/
-.line-1{
-    position: relative;
-    top: 50%;
-    width: 4.2em;
-    margin: 0 auto;
-    font-size: 4em;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    transform: translateY(-50%);
-}
-
-.anim-typewriter{
-  animation: typewriter 0.4s steps(8) 1s 1 normal both,
-             blinkTextCursor 500ms steps(44) infinite normal;
-}
-
-@keyframes typewriter{
-  from{width: 0;}
-  to{width: 4.2em;}
-}
-
-@keyframes blinkTextCursor{
-  from{border-right-color: rgba(0,0,0,.75);}
-  to{border-right-color: transparent;}
-}
-
-/* CH04 - Title and Login
+/* CH02 - Title and Login
 ===============================================================================
 */
 .center {
@@ -104,4 +70,24 @@ h1 {
 
 .login-button:hover {
   color: grey;
+}
+
+/* CH03 - Fade Animation
+===============================================================================
+*/
+.fade-in-anim {
+  animation-name: fadeIn;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 1s;
+  animation-fill-mode:forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+  }
 }
