@@ -7,11 +7,20 @@
   "chrome_url_overrides": {
 		"newtab": "index.html"
 	},
-
   "permissions": [
     "identity",
     "storage",
     "https://www.quizlet.com/*",
-    "https://api.quizlet.com/*"
+    "https://api.quizlet.com/*",
+    "https://fonts.googleapis.com/*"
+  ],
+  "web_accessible_resources": [
+    "*.ttf",
+    "assets/css/style.css",
+    "assets/fonts/Raleway-Bold.ttf",
+    "assets/fonts/Raleway-Regular.ttf"
+  ],
+  "css": [
+    "assets/css/style.css"
   ]
 }
