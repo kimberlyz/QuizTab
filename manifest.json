@@ -15,9 +15,8 @@
     "https://fonts.googleapis.com/*"
   ],
   "web_accessible_resources": [
-    "*.ttf",
     "assets/css/style.css",
     "assets/fonts/Raleway-Bold.ttf",
-    "assets/fonts/Raleway-Regular.ttf"
+    "assets/*"
   ]
 }

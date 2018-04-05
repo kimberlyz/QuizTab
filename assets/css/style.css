@@ -8,21 +8,19 @@
 ===============================================================================
 */
 
-@import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
+/* @import url("https://fonts.googleapis.com/css?family=Raleway:400,700"); */
 
-/* @font-face {
- font-family: 'Raleway';
- font-style: bold;
- font-weight: 700;
+@font-face {
+ font-family: 'My-Raleway';
  src: url('chrome-extension://__ijmpnlakppmpnkhcpdobhbjgnehdlegh__/assets/fonts/Raleway-Bold.ttf');
-} */
+}
 
 html {
   margin: 0;
   width: 100%;
   height: 100%;
   text-align: center;
-  font-family: 'Raleway';
+  font-family: 'My-Raleway';
 }
 
 body {

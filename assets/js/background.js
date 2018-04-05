@@ -6,11 +6,10 @@ $(document).ready(function() {
   });
 
   function load_background() {
-    // create a new Image object
     var img_tag = new Image();
 
     // when preload is complete, apply the image to the div
-    var img = "/assets/img/login-background-large-inter.png";
+    var img = "assets/img/login-background-large-inter.png";
     img_tag.onload = function() {
       $(".background").css("background-image", "url(" + img + ")");
       $(".background").addClass("fade-in-anim");
@@ -19,26 +18,25 @@ $(document).ready(function() {
     img_tag.src = img;
   }
 
-
-
-  function authorize() {
+  function createAuthURL() {
     var csrf_token = "pineapple"; // TODO: Change later to cryptographically secure token
-    var redirect_uri = chrome.identity.getRedirectURL("quizlet_cb");
     var url_params = {
       response_type: "code",
       client_id: "9DYyXZUvbt",
       scope: "read",
       state: csrf_token,
-      redirect_uri: redirect_uri
+      redirect_uri: chrome.identity.getRedirectURL("quizlet_cb")
     };
-    var auth_url = "https://quizlet.com/authorize?" + $.param(url_params);
+    return "https://quizlet.com/authorize?" + $.param(url_params);
+  }
 
+  function authorize() {
+    var auth_url = createAuthURL();
+    console.log("Auth_url " + auth_url);
     chrome.identity.launchWebAuthFlow({'url': auth_url, 'interactive': true},
       function(redirect_url) {
         const url = new URL(redirect_url);
         const params = new URLSearchParams(url.search);
-
-        alert(params);
 
         var state = params.get("state");
         var code = params.get("code");
@@ -51,17 +49,13 @@ $(document).ready(function() {
           data: {
             grant_type: "authorization_code",
             code: code,
-            redirect_uri: redirect_uri,
+            redirect_uri: chrome.identity.getRedirectURL("quizlet_cb"),
           },
           headers: {
-            "Authorization": "xxx",
+            "Authorization": "Basic XXX",
           },
           dataType: "json",
-          success: function (data) {
-            alert("access token: " + data.access_token + "\nuser_id: " + data.user_id);
-            console.info(data);
-            getUserData(data);
-          },
+          success: saveUserData,
           error: function(jqXHR, textStatus, error) {
             alert("There was a problem. Please try logging in again.");
           }
@@ -70,26 +64,22 @@ $(document).ready(function() {
     );
   }
 
-  function getUserData(data) {
-    $.ajax
-    ({
-      url: "https://api.quizlet.com/2.0/users/" + data.user_id,
-      headers: {
-        "Authorization": "Bearer " + data.access_token,
-      },
-      dataType: "json",
-      success: function (data) {
-        alert("SUCCESS");
-        var numSets = data.sets.length;
-        console.log(numSets);
-        console.log(data);
-        $(data.sets).each(function() {
-          console.log($(this));
-        });
-      },
-      error: function(jqXHR, textStatus, error) {
-        alert("Error. Could not retrieve your flashcard sets.");
-      }
+  // TODO: Deal with errors when saving these values into chrome storage
+  var saveUserData = async function (data) {
+    var saveAccessTokenPromise = new Promise(function (resolve, reject) {
+      chrome.storage.sync.set({'access_token': data.access_token}, function() {
+        resolve(data.access_token);
+      })
+    });
+
+    var saveUserIDPromise = new Promise(function (resolve, reject) {
+      chrome.storage.sync.set({'user_id': data.user_id}, function() {
+        resolve(data.user_id);
+      })
+    });
+
+    await Promise.all([saveAccessTokenPromise, saveUserIDPromise]).then(function(values) {
+      window.location.replace("../../sets.html");
     });
   }
 });
