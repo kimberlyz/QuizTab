@@ -1,12 +1,7 @@
 {
-  "manifest_version": 2,
-
   "name": "QuizTab",
-  "description": "Utilizes the Quizlet API to help you study every time a new tab opens!",
   "version": "1.0",
-  "chrome_url_overrides": {
-		"newtab": "index.html"
-	},
+  "description": "Utilizes the Quizlet API to help you study every time a new tab opens!",
   "permissions": [
     "identity",
     "storage",
@@ -14,9 +9,13 @@
     "https://api.quizlet.com/*",
     "https://fonts.googleapis.com/*"
   ],
+  "chrome_url_overrides": {
+		"newtab": "index.html"
+	},
   "web_accessible_resources": [
     "assets/css/style.css",
     "assets/fonts/Raleway-Bold.ttf",
     "assets/*"
-  ]
+  ],
+  "manifest_version": 2
 }

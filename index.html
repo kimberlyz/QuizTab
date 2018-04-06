@@ -1,5 +1,4 @@
 <!doctype html>
-<!-- ijmpnlakppmpnkhcpdobhbjgnehdlegh -->
 <html>
   <head>
     <title>Quiz Tab</title>
@@ -8,16 +7,34 @@
     <!-- <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet"> -->
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <script src="assets/js/jquery-3.3.1.min.js"></script>
-    <script src="assets/js/background.js"></script>
-    <script src="assets/js/sets.js"></script>
+    <script src="assets/js/logic.js"></script>
+    <script src="assets/js/jquery.flip.min.js"></script>
   </head>
 
   <body>
-    <div class="background"></div>
-    <div class="center">
-      <h1 id="title" class="fade-in-anim">Quiz Tab</h1>
-      <a href="#" class="login-button fade-in-anim" id="login">Log in to Quizlet</a>
+    <div id="login-page">
+      <div class="background"></div>
+      <div class="center">
+        <h1 id="title" class="fade-in-anim">Quiz Tab</h1>
+        <a id="login-button" class="fade-in-anim" href="#">Log in to Quizlet</a>
+      </div>
     </div>
-    <div id="container"></div>
+
+    <div id="sets-page">
+      <div id="card" class="center">
+        <div class="front">
+          <div class="center-text">
+            atomic number
+          </div>
+        </div>
+        <div class="back">
+          <div class="center-text">
+            the total number of protons in an atom's nucleus
+          </div>
+        </div>
+      </div>
+      <div id="container"></div>
+    </div>
+
   </body>
 </html>
