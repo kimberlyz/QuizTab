@@ -11,7 +11,7 @@
     <script src="assets/js/jquery.flip.min.js"></script>
   </head>
 
-  <body>
+  <body class="blue-background">
     <div id="login-page">
       <div class="background"></div>
       <div class="center">
@@ -20,20 +20,25 @@
       </div>
     </div>
 
-    <div id="sets-page">
-      <div id="card" class="center">
+    <div id="sets-page" class="hide">
+      <a id="clear" href="#">Clear</a>
+      <a id="addSets" href="#">Add Sets</a>
+      <div class="center-horizontally">
+        <div id="container"></div>
+      </div>
+    </div>
+
+    <div id="flashcard-page" class="hide">
+      <a id="previousCard" href="#">Previous Card</a>
+      <a id="nextCard" href="#">Next Card</a>
+      <div id="card" class="center-card">
         <div class="front">
-          <div class="center-text">
-            atomic number
-          </div>
+          <div class="center-text"></div>
         </div>
         <div class="back">
-          <div class="center-text">
-            the total number of protons in an atom's nucleus
-          </div>
+          <div class="center-text"></div>
         </div>
       </div>
-      <div id="container"></div>
     </div>
 
   </body>

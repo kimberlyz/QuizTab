@@ -1,17 +1,23 @@
 /**
- * PG01 - Login and Authentication
- * PG02 - Flashcard Sets Display
+ * CH01 - Login and Authentication
+ * CH02 - Get User ID And Access Token
+ * CH03 - Sets Display
+ * CH04 - Flashcard Display
 **/
 $(document).ready(function() {
 
-  $("#sets-page").addClass("hide");
+  var user_id; // Currently unused
+  var access_token; // Currently unused
+  var terms;
+  var term_index;
+
   load_background();
 
   $("#login-button").click(function() {
     authorize();
   });
 
-/* PG01 - Login and Authentication
+/* CH01 - Login and Authentication
 ===============================================================================
 */
   function load_background() {
@@ -31,7 +37,7 @@ $(document).ready(function() {
     var csrf_token = "pineapple"; // TODO: Change later to cryptographically secure token
     var url_params = {
       response_type: "code",
-      client_id: "9DYyXZUvbt",
+      client_id: "XXX",
       scope: "read",
       state: csrf_token,
       redirect_uri: chrome.identity.getRedirectURL("quizlet_cb")
@@ -41,7 +47,6 @@ $(document).ready(function() {
 
   function authorize() {
     var auth_url = createAuthURL();
-    console.log("Auth_url " + auth_url);
     chrome.identity.launchWebAuthFlow({'url': auth_url, 'interactive': true},
       function(redirect_url) {
         const url = new URL(redirect_url);
@@ -91,26 +96,15 @@ $(document).ready(function() {
     await Promise.all([saveAccessTokenPromise, saveUserIDPromise]).then(function(values) {
       $("#login-page").addClass("hide")
       $("#sets-page").removeClass("hide");
-      $("body").addClass("blue-background");
-      $("#card").flip({
-        trigger: 'manual'
-      });
-      $("#card").click(function() {
-        $("#card").flip('toggle');
-      });
-      $(document).keypress(function(e) {
-        if (e.which == 32) {
-          $("#card").flip('toggle');
-        }
-      });
+
       getUserDataAndSets();
     });
   }
 
-/* PG02 - Flashcard Sets Display
+/* CH02 - Get User ID And Access Token
 ===============================================================================
 */
-  async function getUserDataAndSets() {
+  async function getUserData() {
     var getAccessTokenPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.get(['access_token'], function(result) {
         resolve(result.access_token);
@@ -128,8 +122,16 @@ $(document).ready(function() {
      getUserIDPromise,
     ]);
 
-    var access_token = result[0];
-    var user_id = result[1];
+    return result;
+  }
+
+/* CH03 - Sets Display
+===============================================================================
+*/
+  async function getUserDataAndSets() {
+    var user_data = await getUserData();
+    var access_token = user_data[0];
+    var user_id = user_data[1];
 
     getSets(access_token, user_id);
   }
@@ -151,15 +153,146 @@ $(document).ready(function() {
     });
   }
 
+  $("#clear").click(function() {
+    $("#container").empty();
+  });
+
+  $("#addSets").click(function() {
+    getUserDataAndSets();
+  });
+
   function populateSetTitles(dataSets) {
     $(dataSets).each(function() {
       console.log(this.title);
-      var setRow = "<div class='row'>"
-                    + "<h2>" + this.title + "</h2>"
-                    + "<p>Some text...</p>";
+      var setRow = "<div class='set-card' "
+                    + "data-set-id='" + this.id + "'>"
+                    + "<span class='underline'>"
+                    + "<p class='set-title'>" + this.title + "</p>"
+                    + "</span>"
                     + "</div>";
+      console.log(setRow);
       $("#container").append(setRow);
     });
-    $("container").removeClass("hide");
+    $("#container").removeClass("hide");
   }
+
+  $("#container").on('click', '.set-card', function(){
+    var setID = $(this).data("set-id");
+    console.log(setID);
+
+    $("#sets-page").addClass("hide")
+    $("#flashcard-page").removeClass("hide");
+
+    getUserDataAndSetFlashcards(setID);
+  });
+
+/* CH04 - Flashcard Display
+===============================================================================
+*/
+  async function getUserDataAndSetFlashcards(set_id) {
+    var user_data = await getUserData();
+    var access_token = user_data[0];
+
+    getSetFlashcards(access_token, set_id);
+  }
+
+  function getSetFlashcards(access_token, set_id) {
+    $.ajax
+    ({
+      url: "https://api.quizlet.com/2.0/sets/" + set_id,
+      headers: {
+        "Authorization": "Bearer " + access_token,
+      },
+      dataType: "json",
+      success: function (data) {
+        $.terms = data.terms;
+        $.term_index = 0;
+        populateFlashcard();
+      },
+      error: function(jqXHR, textStatus, error) {
+        console.log(error);
+        alert("Error. Could not retrieve your flashcards.");
+      }
+    });
+  }
+
+  $("#card").flip({
+    trigger: 'manual'
+  });
+
+  $("#card").click(function() {
+    $("#card").flip('toggle');
+  });
+
+  $(document).keydown(function(e) {
+    switch(e.which) {
+      case 32:
+        $("#card").flip('toggle');
+        break;
+
+      case 37: // left
+        console.log("Left");
+        previousCard();
+        break;
+
+      case 39: // right
+        console.log("Right");
+        nextCard();
+        break;
+
+      default:
+        return; // exit this handler for other keys
+    }
+  });
+
+  function previousCard() {
+    if ($.term_index - 1 >= 0) {
+      $.term_index -= 1;
+      populateFlashcard();
+    }
+  }
+
+  function nextCard() {
+    if ($.term_index + 1 < $.terms.length) {
+      $.term_index += 1;
+      populateFlashcard();
+    }
+  }
+
+  function populateFlashcard() {
+    // var index = Math.floor(Math.random() * $.terms.length);
+
+    var oneTerm = $.terms[$.term_index];
+    $(".front .center-text").text(oneTerm.term);
+    $(".back .center-text").text(oneTerm.definition);
+  }
+
+  // function fixFlip(oneTerm) {
+  //   var flip = $("#card").data("flip-model");
+  //
+  //   // Flip to front while hiding animation
+  //   if (flip.isFlipped) {
+  //     // $("#card").css("visibility", "hidden");
+  //     $("#card").flip();
+  //   }
+  //   //
+  //   //   setTimeout(function() {
+  //   //     $(".front .center-text").text(oneTerm.term);
+  //   //     $(".back .center-text").text(oneTerm.definition);
+  //   //     $("#card").css("visibility", "visible");
+  //   //   }, 500);
+  //   //
+  //   // } else {
+  //   //   $(".front .center-text").text(oneTerm.term);
+  //   //   $(".back .center-text").text(oneTerm.definition);
+  //   // }
+  // }
+
+  $("#previousCard").click(function() {
+    previousCard();
+  });
+
+  $("#nextCard").click(function() {
+    nextCard();
+  });
 });

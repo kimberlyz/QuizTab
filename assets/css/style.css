@@ -3,6 +3,7 @@
  * CH02 - Title and Login
  * CH03 - Fade Animation
  * CH04 - Flashcard Setup
+ * CH05 - Sets Setup
 **/
 
 /* CH01 - Basic Settings
@@ -52,6 +53,12 @@ body {
   margin: 0;
 }
 
+#flashcard-page {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
 /* CH02 - Title and Login
 ===============================================================================
 */
@@ -66,6 +73,13 @@ h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   color: black;
+}
+
+.center-horizontally {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
 }
 
 #login-button {
@@ -112,7 +126,7 @@ h1 {
 */
 #card {
 	width: 500px;
-	height: 300px;
+	height: 270px;
 }
 
 #card .front, #card .back {
@@ -120,6 +134,16 @@ h1 {
 	font-size: 30px;
 	font-weight: 400;
   background-color: white;
+  padding: 30px;
+}
+
+.center-card {
+  margin: 0;
+  position: absolute;
+  top: calc(50% - 30px); /* 30px is the card's padding*/
+  left: calc(50% - 30px);
+  transform: translate(-50%, -50%);
+  color: black;
 }
 
 .center-text {
@@ -132,4 +156,36 @@ h1 {
 
 .blue-background {
   background-color: #e3e5ed;
+}
+
+/* CH05 - Sets Setup
+===============================================================================
+*/
+.set-card {
+    /* Add shadows to create the "card" effect */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    width: 500px;
+    height: 100px;
+    background-color: white;
+    transition: 0.3s;
+    text-align: left;
+    padding: 5px 30px;
+    margin: 25px;
+}
+
+/* On mouse-over, add a deeper shadow */
+.set-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.set-title {
+	margin-bottom: 3px;
+	font-size: 1.6em;
+	font-weight: 400;
+}
+
+.underline{
+    border-bottom: 2px solid #00CED1;
+    width: 100%;
+    display: block;
 }
