@@ -1,7 +1,7 @@
 {
   "name": "QuizTab",
   "version": "1.0",
-  "description": "Utilizes the Quizlet API to help you study every time a new tab opens!",
+  "description": "Helps you study Quizlet flashcards every time a new tab opens!",
   "permissions": [
     "identity",
     "storage",

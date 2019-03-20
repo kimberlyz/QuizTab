@@ -5,6 +5,10 @@
 
     <!-- Let's use Raleway and Montserrat -->
     <!-- <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet"> -->
+    <link rel="stylesheet"
+          href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+          crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="assets/css/style.css">
     <script src="assets/js/jquery-3.3.1.min.js"></script>
     <script src="assets/js/logic.js"></script>
@@ -29,8 +33,6 @@
     </div>
 
     <div id="flashcard-page" class="hide">
-      <a id="previousCard" href="#">Previous Card</a>
-      <a id="nextCard" href="#">Next Card</a>
       <div id="card" class="center-card">
         <div class="front">
           <div class="center-text"></div>
@@ -39,6 +41,14 @@
           <div class="center-text"></div>
         </div>
       </div>
+      <span>
+        <a class="switch-card" id="previousCard" href="#">
+          <i class="far fa-arrow-alt-circle-left"></i>
+        </a>
+        <a class="switch-card" id="nextCard" href="#">
+          <i class="far fa-arrow-alt-circle-right"></i>
+        </a>
+      </span>
     </div>
 
   </body>

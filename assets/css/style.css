@@ -30,6 +30,10 @@ body {
   height: 100%;
 }
 
+a {
+  text-decoration: none;
+}
+
 .background {
     height: 100%;
     background-position: center;
@@ -112,6 +116,14 @@ h1 {
   animation-fill-mode:forwards;
 }
 
+.fast-fade-in {
+  animation-name: fadeIn;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.5s;
+  animation-fill-mode:forwards;
+}
+
 @keyframes fadeIn {
   0% {
       opacity: 0;
@@ -144,6 +156,18 @@ h1 {
   left: calc(50% - 30px);
   transform: translate(-50%, -50%);
   color: black;
+}
+
+.switch-card {
+  position: relative;
+  top: 270px;
+  color: black;
+  font-size: 36px;
+  margin: 0 10px;
+}
+
+.switch-card:hover {
+  color: grey;
 }
 
 .center-text {

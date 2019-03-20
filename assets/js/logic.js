@@ -11,11 +11,26 @@ $(document).ready(function() {
   var terms;
   var term_index;
 
-  load_background();
+  $("#login-page").addClass("hide");
+  $("#sets-page").removeClass("hide");
 
-  $("#login-button").click(function() {
-    authorize();
+  var user_data = getUserData();
+  user_data.then(function(values) {
+    var user_id = values[0];
+    var access_token = values[1];
+    console.log(user_id);
+    console.log(access_token);
+
+    getSets(user_id, access_token);
   });
+
+  function show_login() {
+    load_background();
+
+    $("#login-button").click(function() {
+      authorize();
+    });
+  }
 
 /* CH01 - Login and Authentication
 ===============================================================================
@@ -80,24 +95,25 @@ $(document).ready(function() {
 
   // TODO: Deal with errors when saving these values into chrome storage
   var saveUserData = async function (data) {
-    var saveAccessTokenPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.set({'access_token': data.access_token}, function() {
-        resolve(data.access_token);
-      })
-    });
-
     var saveUserIDPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.set({'user_id': data.user_id}, function() {
         resolve(data.user_id);
       })
     });
 
+    var saveAccessTokenPromise = new Promise(function (resolve, reject) {
+      chrome.storage.sync.set({'access_token': data.access_token}, function() {
+        resolve(data.access_token);
+      })
+    });
+
     // TODO: Refactor this
-    await Promise.all([saveAccessTokenPromise, saveUserIDPromise]).then(function(values) {
-      $("#login-page").addClass("hide")
+    await Promise.all([saveUserIDPromise, saveAccessTokenPromise]).then(function(values) {
+      $("#login-page").addClass("hide");
       $("#sets-page").removeClass("hide");
 
-      getUserDataAndSets();
+      var user_data = getUserData();
+      getUserDataAndSets(user_data);
     });
   }
 
@@ -105,21 +121,21 @@ $(document).ready(function() {
 ===============================================================================
 */
   async function getUserData() {
-    var getAccessTokenPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.get(['access_token'], function(result) {
-        resolve(result.access_token);
-      });
-    });
-
     var getUserIDPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.get(['user_id'], function(result) {
         resolve(result.user_id);
       });
     });
 
+    var getAccessTokenPromise = new Promise(function (resolve, reject) {
+      chrome.storage.sync.get(['access_token'], function(result) {
+        resolve(result.access_token);
+      });
+    });
+
     var result = await Promise.all([
-     getAccessTokenPromise,
-     getUserIDPromise,
+      getUserIDPromise,
+      getAccessTokenPromise,
     ]);
 
     return result;
@@ -128,15 +144,7 @@ $(document).ready(function() {
 /* CH03 - Sets Display
 ===============================================================================
 */
-  async function getUserDataAndSets() {
-    var user_data = await getUserData();
-    var access_token = user_data[0];
-    var user_id = user_data[1];
-
-    getSets(access_token, user_id);
-  }
-
-  function getSets(access_token, user_id) {
+  function getSets(user_id, access_token) {
     $.ajax
     ({
       url: "https://api.quizlet.com/2.0/users/" + user_id,
@@ -163,8 +171,9 @@ $(document).ready(function() {
 
   function populateSetTitles(dataSets) {
     $(dataSets).each(function() {
+
       console.log(this.title);
-      var setRow = "<div class='set-card' "
+      var setRow = "<div class='fast-fade-in set-card' "
                     + "data-set-id='" + this.id + "'>"
                     + "<span class='underline'>"
                     + "<p class='set-title'>" + this.title + "</p>"
@@ -191,7 +200,7 @@ $(document).ready(function() {
 */
   async function getUserDataAndSetFlashcards(set_id) {
     var user_data = await getUserData();
-    var access_token = user_data[0];
+    var access_token = user_data[1];
 
     getSetFlashcards(access_token, set_id);
   }
