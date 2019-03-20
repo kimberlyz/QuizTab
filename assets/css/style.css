@@ -4,6 +4,7 @@
  * CH03 - Fade Animation
  * CH04 - Flashcard Setup
  * CH05 - Sets Setup
+ * CH06 - Side Navigation
 **/
 
 /* CH01 - Basic Settings
@@ -21,7 +22,6 @@ html {
   margin: 0;
   width: 100%;
   height: 100%;
-  text-align: center;
   font-family: 'My-Raleway';
 }
 
@@ -57,7 +57,7 @@ a {
   margin: 0;
 }
 
-#flashcard-page {
+#flashcards-page {
   height: 100%;
   width: 100%;
   margin: 0;
@@ -77,6 +77,7 @@ h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   color: black;
+  text-align: center;
 }
 
 .center-horizontally {
@@ -160,10 +161,9 @@ h1 {
 
 .switch-card {
   position: relative;
-  top: 270px;
+  top: 220px;
   color: black;
-  font-size: 36px;
-  margin: 0 10px;
+  margin: 0 15px;
 }
 
 .switch-card:hover {
@@ -179,7 +179,7 @@ h1 {
 }
 
 .blue-background {
-  background-color: #e3e5ed;
+  background-color: #e6e6e6;
 }
 
 /* CH05 - Sets Setup
@@ -212,4 +212,52 @@ h1 {
     border-bottom: 2px solid #00CED1;
     width: 100%;
     display: block;
+}
+
+/* CH06 - Side Navigation
+===============================================================================
+*/
+.side-nav {
+  height: 100%;
+  width: 250px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: -250px;
+  background-color: #111;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px;
+  transition: 0.5s;
+  text-align: left;
+}
+
+.side-nav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+}
+
+.side-nav a:hover {
+  color: #f1f1f1;
+}
+
+.side-nav .close-nav {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+.open-nav i {
+  float: left;
+  margin-top: 10px;
+  margin-left: 15px;
+}
+
+.open-nav i:hover {
+  color: grey;
 }

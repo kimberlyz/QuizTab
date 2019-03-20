@@ -3,6 +3,7 @@
  * CH02 - Get User ID And Access Token
  * CH03 - Sets Display
  * CH04 - Flashcard Display
+ * CH05 - Navigation
 **/
 $(document).ready(function() {
 
@@ -23,14 +24,6 @@ $(document).ready(function() {
 
     getSets(user_id, access_token);
   });
-
-  function show_login() {
-    load_background();
-
-    $("#login-button").click(function() {
-      authorize();
-    });
-  }
 
 /* CH01 - Login and Authentication
 ===============================================================================
@@ -113,7 +106,7 @@ $(document).ready(function() {
       $("#sets-page").removeClass("hide");
 
       var user_data = getUserData();
-      getUserDataAndSets(user_data);
+      getSets(user_data[0], user_data[1]);
     });
   }
 
@@ -161,14 +154,6 @@ $(document).ready(function() {
     });
   }
 
-  $("#clear").click(function() {
-    $("#container").empty();
-  });
-
-  $("#addSets").click(function() {
-    getUserDataAndSets();
-  });
-
   function populateSetTitles(dataSets) {
     $(dataSets).each(function() {
 
@@ -189,15 +174,29 @@ $(document).ready(function() {
     var setID = $(this).data("set-id");
     console.log(setID);
 
-    $("#sets-page").addClass("hide")
-    $("#flashcard-page").removeClass("hide");
-
+    show_flashcards();
     getUserDataAndSetFlashcards(setID);
   });
 
 /* CH04 - Flashcard Display
 ===============================================================================
 */
+  $("#card").flip({
+    trigger: 'manual'
+  });
+
+  $("#card").click(function() {
+    $("#card").flip('toggle');
+  });
+
+  $("#previousCard").click(function() {
+    previousCard();
+  });
+
+  $("#nextCard").click(function() {
+    nextCard();
+  });
+
   async function getUserDataAndSetFlashcards(set_id) {
     var user_data = await getUserData();
     var access_token = user_data[1];
@@ -224,14 +223,6 @@ $(document).ready(function() {
       }
     });
   }
-
-  $("#card").flip({
-    trigger: 'manual'
-  });
-
-  $("#card").click(function() {
-    $("#card").flip('toggle');
-  });
 
   $(document).keydown(function(e) {
     switch(e.which) {
@@ -297,11 +288,42 @@ $(document).ready(function() {
   //   // }
   // }
 
-  $("#previousCard").click(function() {
-    previousCard();
+/* CH05 - Navigation
+===============================================================================
+*/
+  $(".open-nav").click(function() {
+    $(".side-nav").css("left", "0px");
+  });
+  $(".close-nav").click(function() {
+    $(".side-nav").css("left", "-250px");
   });
 
-  $("#nextCard").click(function() {
-    nextCard();
-  });
+  $("#choose-set").click(show_sets);
+
+  function show_sets() {
+    $("#login-page").addClass("hide");
+    $("#flashcards-page").addClass("hide");
+
+    $("#sets-page").removeClass("hide");
+  }
+
+  function show_flashcards() {
+    $("#login-page").addClass("hide");
+    $("#sets-page").addClass("hide");
+
+    $(".front .center-text").text("");
+    $(".back .center-text").text("");
+    $("#flashcards-page").removeClass("hide");
+  }
+
+  function show_login() {
+    load_background();
+    $("#flashcards-page").addClass("hide");
+    $("#sets-page").addClass("hide");
+
+    $("#login-page").removeClass("hide");
+    $("#login-button").click(function() {
+      authorize();
+    });
+  }
 });

@@ -24,15 +24,27 @@
       </div>
     </div>
 
+    <div class="side-nav">
+      <a href="#" class="close-nav">&times;</a>
+      <a href="#">Progress</a>
+      <a href="#">Shuffle</a>
+      <a href="#" id="choose-set">Choose Set</a>
+      <a href="#">Logout</a>
+    </div>
+
     <div id="sets-page" class="hide">
-      <a id="clear" href="#">Clear</a>
-      <a id="addSets" href="#">Add Sets</a>
+      <div class="open-nav">
+        <i class="fas fa-bars fa-2x"></i>
+      </div>
       <div class="center-horizontally">
         <div id="container"></div>
       </div>
     </div>
 
-    <div id="flashcard-page" class="hide">
+    <div id="flashcards-page" class="hide">
+      <div class="open-nav">
+        <i class="fas fa-bars fa-2x"></i>
+      </div>
       <div id="card" class="center-card">
         <div class="front">
           <div class="center-text"></div>
@@ -41,14 +53,14 @@
           <div class="center-text"></div>
         </div>
       </div>
-      <span>
+      <div class="center">
         <a class="switch-card" id="previousCard" href="#">
-          <i class="far fa-arrow-alt-circle-left"></i>
+          <i class="far fa-arrow-alt-circle-left fa-3x"></i>
         </a>
         <a class="switch-card" id="nextCard" href="#">
-          <i class="far fa-arrow-alt-circle-right"></i>
+          <i class="far fa-arrow-alt-circle-right fa-3x"></i>
         </a>
-      </span>
+      </div>
     </div>
 
   </body>
