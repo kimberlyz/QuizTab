@@ -11,6 +11,7 @@ $(document).ready(function() {
   var access_token; // Currently unused
   var terms;
   var term_index;
+  var current_indices;
 
   $("#login-page").addClass("hide");
   $("#sets-page").removeClass("hide");
@@ -19,16 +20,27 @@ $(document).ready(function() {
   user_data.then(function(values) {
     var user_id = values[0];
     var access_token = values[1];
-    console.log(user_id);
-    console.log(access_token);
-
+    // console.log(user_id);
+    // console.log(access_token);
     getSets(user_id, access_token);
   });
+
+  $("#logout").click(logout);
+
+  function logout() {
+    chrome.storage.sync.clear(function() {
+      if (chrome.runtime.lastError) {
+        alert("Error logging out. Please try clearing your chrome browser cache and refresh the page.");
+      } else {
+        showLogin();
+      }
+    });
+  }
 
 /* CH01 - Login and Authentication
 ===============================================================================
 */
-  function load_background() {
+  function loadBackground() {
     var img_tag = new Image();
 
     // when preload is complete, apply the image to the div
@@ -87,16 +99,24 @@ $(document).ready(function() {
   }
 
   // TODO: Deal with errors when saving these values into chrome storage
-  var saveUserData = async function (data) {
+  async function saveUserData(data) {
     var saveUserIDPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.set({'user_id': data.user_id}, function() {
-        resolve(data.user_id);
+        if (chrome.runtime.lastError) {
+          resolve(data.user_id);
+        } else {
+          reject(console.log("Problem saving user_id"));
+        }
       })
     });
 
     var saveAccessTokenPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.set({'access_token': data.access_token}, function() {
-        resolve(data.access_token);
+        if (chrome.runtime.lastError) {
+          resolve(data.access_token);
+        } else {
+          reject(console.log("Problem saving access_token"));
+        }
       })
     });
 
@@ -110,27 +130,57 @@ $(document).ready(function() {
     });
   }
 
+  async function saveSetID(set_id) {
+    // var saveSetIDPromise = new Promise(function (resolve, reject) {
+    chrome.storage.sync.set({'set_id': set_id}, function() {
+      if (chrome.runtime.lastError) {
+        console.log("Problem saving set_id");
+      }
+    })
+    // });
+  }
+
 /* CH02 - Get User ID And Access Token
 ===============================================================================
 */
   async function getUserData() {
     var getUserIDPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.get(['user_id'], function(result) {
-        resolve(result.user_id);
+        if (chrome.runtime.lastError) {
+          resolve(result.user_id);
+        } else {
+          reject(console.log("Problem getting user_id"));
+        }
       });
     });
 
     var getAccessTokenPromise = new Promise(function (resolve, reject) {
       chrome.storage.sync.get(['access_token'], function(result) {
-        resolve(result.access_token);
+        if (chrome.runtime.lastError) {
+          resolve(result.access_token);
+        } else {
+          reject(console.log("Problem getting access_token"));
+        }
+      });
+    });
+
+    var getSetIDPromise = new Promise(function (resolve, reject) {
+      chrome.storage.sync.get(['set_id'], function(result) {
+        if (chrome.runtime.lastError) {
+          resolve(result.set_id);
+        } else {
+          console.log("UMMM");
+        }
       });
     });
 
     var result = await Promise.all([
       getUserIDPromise,
       getAccessTokenPromise,
+      getSetIDPromise,
     ]);
 
+    console.log("LOG IS", getSetIDPromise);
     return result;
   }
 
@@ -156,15 +206,12 @@ $(document).ready(function() {
 
   function populateSetTitles(dataSets) {
     $(dataSets).each(function() {
-
-      console.log(this.title);
       var setRow = "<div class='fast-fade-in set-card' "
                     + "data-set-id='" + this.id + "'>"
                     + "<span class='underline'>"
                     + "<p class='set-title'>" + this.title + "</p>"
                     + "</span>"
                     + "</div>";
-      console.log(setRow);
       $("#container").append(setRow);
     });
     $("#container").removeClass("hide");
@@ -174,7 +221,7 @@ $(document).ready(function() {
     var setID = $(this).data("set-id");
     console.log(setID);
 
-    show_flashcards();
+    showFlashcards();
     getUserDataAndSetFlashcards(setID);
   });
 
@@ -189,13 +236,9 @@ $(document).ready(function() {
     $("#card").flip('toggle');
   });
 
-  $("#previousCard").click(function() {
-    previousCard();
-  });
+  $("#previousCard").click(previousCard);
 
-  $("#nextCard").click(function() {
-    nextCard();
-  });
+  $("#nextCard").click(nextCard);
 
   async function getUserDataAndSetFlashcards(set_id) {
     var user_data = await getUserData();
@@ -214,8 +257,13 @@ $(document).ready(function() {
       dataType: "json",
       success: function (data) {
         $.terms = data.terms;
+        $.current_indices = [...Array($.terms.length).keys()];
+        $.current_indices = shuffle($.current_indices);
         $.term_index = 0;
-        populateFlashcard();
+        console.log("GOT HERE");
+        console.log($.current_indices);
+        saveSetID(set_id);
+        populateFlashcard($.current_indices[$.term_index]);
       },
       error: function(jqXHR, textStatus, error) {
         console.log(error);
@@ -231,12 +279,10 @@ $(document).ready(function() {
         break;
 
       case 37: // left
-        console.log("Left");
         previousCard();
         break;
 
       case 39: // right
-        console.log("Right");
         nextCard();
         break;
 
@@ -248,23 +294,34 @@ $(document).ready(function() {
   function previousCard() {
     if ($.term_index - 1 >= 0) {
       $.term_index -= 1;
-      populateFlashcard();
+      populateFlashcard($.current_indices[$.term_index]);
     }
   }
 
   function nextCard() {
     if ($.term_index + 1 < $.terms.length) {
       $.term_index += 1;
-      populateFlashcard();
+      populateFlashcard($.current_indices[$.term_index]);
     }
   }
 
-  function populateFlashcard() {
+  function populateFlashcard(index) {
     // var index = Math.floor(Math.random() * $.terms.length);
 
-    var oneTerm = $.terms[$.term_index];
+    var oneTerm = $.terms[index];
     $(".front .center-text").text(oneTerm.term);
     $(".back .center-text").text(oneTerm.definition);
+  }
+
+  function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
   }
 
   // function fixFlip(oneTerm) {
@@ -298,16 +355,16 @@ $(document).ready(function() {
     $(".side-nav").css("left", "-250px");
   });
 
-  $("#choose-set").click(show_sets);
+  $("#choose-set").click(showSets);
 
-  function show_sets() {
+  function showSets() {
     $("#login-page").addClass("hide");
     $("#flashcards-page").addClass("hide");
 
     $("#sets-page").removeClass("hide");
   }
 
-  function show_flashcards() {
+  function showFlashcards() {
     $("#login-page").addClass("hide");
     $("#sets-page").addClass("hide");
 
@@ -316,14 +373,13 @@ $(document).ready(function() {
     $("#flashcards-page").removeClass("hide");
   }
 
-  function show_login() {
-    load_background();
+  function showLogin() {
+    loadBackground();
+
     $("#flashcards-page").addClass("hide");
     $("#sets-page").addClass("hide");
 
     $("#login-page").removeClass("hide");
-    $("#login-button").click(function() {
-      authorize();
-    });
+    $("#login-button").click(authorize);
   }
 });
