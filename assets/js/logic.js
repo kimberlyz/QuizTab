@@ -216,14 +216,16 @@ $(document).ready(function() {
       },
       dataType: "json",
       success: function (data) {
-        $.terms = data.terms;
-        $.current_indices = [...Array($.terms.length).keys()];
-        $.current_indices = shuffle($.current_indices);
-        $.term_index = 0;
-        console.log("GOT HERE");
-        console.log($.current_indices);
+        terms = data.terms;
+        current_indices = [...Array(terms.length).keys()];
+        current_indices = shuffle(current_indices);
+        term_index = 0;
         saveSetID(set_id);
-        populateFlashcard($.current_indices[$.term_index]);
+
+        $(".inner-bar").width(calcWidthPercentage());
+        $(".progress-label").text(`${term_index + 1}/${current_indices.length}`);
+
+        populateFlashcard(current_indices[term_index]);
       },
       error: function(jqXHR, textStatus, error) {
         console.log(error);
@@ -252,21 +254,23 @@ $(document).ready(function() {
   });
 
   function previousCard() {
-    if ($.term_index - 1 >= 0) {
-      $.term_index -= 1;
-      populateFlashcard($.current_indices[$.term_index]);
+    if (term_index - 1 >= 0) {
+      term_index -= 1;
+      populateFlashcard(current_indices[term_index]);
+      updateProgressBar();
     }
   }
 
   function nextCard() {
-    if ($.term_index + 1 < $.terms.length) {
-      $.term_index += 1;
-      populateFlashcard($.current_indices[$.term_index]);
+    if (term_index + 1 < terms.length) {
+      term_index += 1;
+      populateFlashcard(current_indices[term_index]);
+      updateProgressBar();
     }
   }
 
   function populateFlashcard(index) {
-    var oneTerm = $.terms[index];
+    var oneTerm = terms[index];
     $(".front .center-text").text(oneTerm.term);
     $(".back .center-text").text(oneTerm.definition);
   }
@@ -343,5 +347,15 @@ $(document).ready(function() {
 
     $("#login-page").removeClass("hide");
     $("#login-button").click(authorize);
+  }
+
+  function calcWidthPercentage() {
+    var width_percentage = (term_index + 1) / current_indices.length * 100;
+    return width_percentage.toFixed(1) + "%";
+  }
+
+  function updateProgressBar() {
+    $(".inner-bar").animate({width: calcWidthPercentage()}, "fast");
+    $(".progress-label").text(`${term_index + 1}/${current_indices.length}`);
   }
 });

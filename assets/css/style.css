@@ -224,7 +224,7 @@ h1 {
   z-index: 1;
   top: 0;
   left: -250px;
-  background-color: #111;
+  background-color: #fff;
   overflow-x: hidden; /* Disable horizontal scroll */
   padding-top: 60px;
   transition: 0.5s;
@@ -237,7 +237,7 @@ h1 {
   font-size: 25px;
   color: #818181;
   display: block;
-  transition: 0.3s;
+  /* transition: 0.3s; */
 }
 
 .side-nav a:hover {
@@ -260,6 +260,18 @@ h1 {
 
 .open-nav i:hover {
   color: grey;
+}
+
+.outer-bar {
+  /* padding: 8px 8px 8px 32px; */
+  margin-left: 8px 8px 8px 32;
+  background-color:#f1f1f1!important;
+  width: 90%;
+}
+
+.inner-bar {
+  background-color:#4CAF50!important;
+  height: 25px;
 }
 
 .no-transition {
