@@ -7,22 +7,26 @@
 **/
 $(document).ready(function() {
 
-  var user_id; // Currently unused
-  var access_token; // Currently unused
+  var user_id;
+  var access_token;
   var terms;
   var term_index;
   var current_indices;
 
-  $("#login-page").addClass("hide");
-  $("#sets-page").removeClass("hide");
+  getUserData().then(function(values) {
+    user_id = values['user_id'];
+    access_token = values['access_token'];
+    var set_id = values['set_id'];
 
-  var user_data = getUserData();
-  user_data.then(function(values) {
-    var user_id = values[0];
-    var access_token = values[1];
-    // console.log(user_id);
-    // console.log(access_token);
-    getSets(user_id, access_token);
+    console.log("Values", user_id, access_token, set_id);
+
+    if (access_token === 'XXX') {
+      showLogin();
+    } else if (set_id === 'XXX') {
+      showSets();
+    } else {
+      showFlashcards(set_id);
+    }
   });
 
   $("#logout").click(logout);
@@ -89,7 +93,7 @@ $(document).ready(function() {
             "Authorization": "Basic XXX",
           },
           dataType: "json",
-          success: saveUserData,
+          success: saveUserDataAndShowSets,
           error: function(jqXHR, textStatus, error) {
             alert("There was a problem. Please try logging in again.");
           }
@@ -99,89 +103,53 @@ $(document).ready(function() {
   }
 
   // TODO: Deal with errors when saving these values into chrome storage
-  async function saveUserData(data) {
-    var saveUserIDPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.set({'user_id': data.user_id}, function() {
-        if (chrome.runtime.lastError) {
-          resolve(data.user_id);
-        } else {
-          reject(console.log("Problem saving user_id"));
-        }
-      })
-    });
+  async function saveUserDataAndShowSets(data) {
+    chrome.storage.sync.set({'user_id': data.user_id,
+                             'access_token': data.access_token
+                            },function() {
+      if (chrome.runtime.lastError) {
+        console.log("Error saving user_id and access_token");
+      } else {
+        $("#login-page").addClass("hide");
+        $("#sets-page").removeClass("hide");
 
-    var saveAccessTokenPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.set({'access_token': data.access_token}, function() {
-        if (chrome.runtime.lastError) {
-          resolve(data.access_token);
-        } else {
-          reject(console.log("Problem saving access_token"));
-        }
-      })
-    });
+        user_id = data.user_id;
+        access_token = data.access_token;
 
-    // TODO: Refactor this
-    await Promise.all([saveUserIDPromise, saveAccessTokenPromise]).then(function(values) {
-      $("#login-page").addClass("hide");
-      $("#sets-page").removeClass("hide");
-
-      var user_data = getUserData();
-      getSets(user_data[0], user_data[1]);
+        getSets(user_id, access_token);
+      }
     });
   }
 
   async function saveSetID(set_id) {
-    // var saveSetIDPromise = new Promise(function (resolve, reject) {
     chrome.storage.sync.set({'set_id': set_id}, function() {
       if (chrome.runtime.lastError) {
         console.log("Problem saving set_id");
       }
     })
-    // });
   }
 
 /* CH02 - Get User ID And Access Token
 ===============================================================================
 */
-  async function getUserData() {
-    var getUserIDPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.get(['user_id'], function(result) {
+  function getUserData() {
+    return new Promise(function(resolve, reject) {
+      chrome.storage.sync.get({'user_id':'XXX',
+                               'access_token':"XXX",
+                               'set_id':'XXX'
+                              }, function(result) {
         if (chrome.runtime.lastError) {
-          resolve(result.user_id);
+          console.log("Problem getting user data");
+          resolve(false);
         } else {
-          reject(console.log("Problem getting user_id"));
+          resolve({
+            user_id: result.user_id,
+            access_token: result.access_token,
+            set_id: result.set_id
+          });
         }
       });
     });
-
-    var getAccessTokenPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.get(['access_token'], function(result) {
-        if (chrome.runtime.lastError) {
-          resolve(result.access_token);
-        } else {
-          reject(console.log("Problem getting access_token"));
-        }
-      });
-    });
-
-    var getSetIDPromise = new Promise(function (resolve, reject) {
-      chrome.storage.sync.get(['set_id'], function(result) {
-        if (chrome.runtime.lastError) {
-          resolve(result.set_id);
-        } else {
-          console.log("UMMM");
-        }
-      });
-    });
-
-    var result = await Promise.all([
-      getUserIDPromise,
-      getAccessTokenPromise,
-      getSetIDPromise,
-    ]);
-
-    console.log("LOG IS", getSetIDPromise);
-    return result;
   }
 
 /* CH03 - Sets Display
@@ -218,11 +186,10 @@ $(document).ready(function() {
   }
 
   $("#container").on('click', '.set-card', function(){
-    var setID = $(this).data("set-id");
-    console.log(setID);
+    var set_id = $(this).data("set-id");
+    console.log("SET ID", set_id);
 
-    showFlashcards();
-    getUserDataAndSetFlashcards(setID);
+    showFlashcards(set_id);
   });
 
 /* CH04 - Flashcard Display
@@ -240,14 +207,7 @@ $(document).ready(function() {
 
   $("#nextCard").click(nextCard);
 
-  async function getUserDataAndSetFlashcards(set_id) {
-    var user_data = await getUserData();
-    var access_token = user_data[1];
-
-    getSetFlashcards(access_token, set_id);
-  }
-
-  function getSetFlashcards(access_token, set_id) {
+  function getSetFlashcards(set_id, access_token) {
     $.ajax
     ({
       url: "https://api.quizlet.com/2.0/sets/" + set_id,
@@ -306,8 +266,6 @@ $(document).ready(function() {
   }
 
   function populateFlashcard(index) {
-    // var index = Math.floor(Math.random() * $.terms.length);
-
     var oneTerm = $.terms[index];
     $(".front .center-text").text(oneTerm.term);
     $(".back .center-text").text(oneTerm.definition);
@@ -362,15 +320,19 @@ $(document).ready(function() {
     $("#flashcards-page").addClass("hide");
 
     $("#sets-page").removeClass("hide");
+
+    getSets(user_id, access_token);
   }
 
-  function showFlashcards() {
+  function showFlashcards(set_id) {
     $("#login-page").addClass("hide");
     $("#sets-page").addClass("hide");
 
     $(".front .center-text").text("");
     $(".back .center-text").text("");
     $("#flashcards-page").removeClass("hide");
+
+    getSetFlashcards(set_id, access_token);
   }
 
   function showLogin() {
